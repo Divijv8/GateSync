@@ -3,6 +3,7 @@ import Navbar from './components/Navbar.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Login from './pages/Login.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
+import Users from './pages/Users.jsx'
 import EmployeeDashboard from './pages/EmployeeDashboard.jsx'
 import GateOperator from './pages/GateOperator.jsx'
 import VisitorRegistration from './pages/VisitorRegistration.jsx'
@@ -19,7 +20,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/users" element={<AdminDashboard />} />
+          <Route path="/users" element={<Users />} />
           <Route path="/blacklist" element={<Blacklist />} />
           <Route path="/reports" element={<Reports />} />
         </Route>

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from auth import get_current_user
 from database import get_db
-from models import AuditLog, Visitor
+from models import AuditLog, Blacklist, Visitor
 from schemas import VisitorCreate, VisitorRead, VisitorUpdate
 
 
@@ -17,6 +17,13 @@ def list_visitors(db: Session = Depends(get_db), current_user=Depends(get_curren
 
 @router.post("", response_model=VisitorRead, status_code=status.HTTP_201_CREATED)
 def create_visitor(payload: VisitorCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    blacklisted = db.query(Blacklist).filter(
+        Blacklist.full_name == f"{payload.first_name} {payload.last_name}",
+        Blacklist.is_active == True
+    ).first()
+    if blacklisted:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Visitor is blacklisted and cannot be registered")
+
     visitor = Visitor(**payload.model_dump())
     db.add(visitor)
     db.flush()

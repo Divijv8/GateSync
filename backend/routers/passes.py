@@ -3,10 +3,12 @@ from pathlib import Path
 from uuid import uuid4
 
 import qrcode
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from auth import get_current_user, require_role
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from auth import get_current_user
+from backend.auth import require_role
 from database import get_db
 from models import AuditLog, Pass, Visitor
 from schemas import PassIssueResponse, PassRead
@@ -16,6 +18,7 @@ router = APIRouter(prefix="/passes", tags=["passes"])
 STATIC_DIR = Path(__file__).resolve().parents[1] / "static"
 QR_DIR = STATIC_DIR / "qrcodes"
 QR_DIR.mkdir(parents=True, exist_ok=True)
+
 
 
 def _build_qr_code(pass_record: Pass) -> str:
@@ -64,6 +67,16 @@ def issue_pass(
         access_pass=PassRead.model_validate(pass_record),
         qr_code_url=qr_code_url,
     )
+
+@router.patch("/{pass_id}/revoke", response_model=PassRead)
+def revoke_pass(pass_id: int, db: Session = Depends(get_db), current_user=Depends(require_role("admin"))):
+    pass_record = db.query(Pass).filter(Pass.id == pass_id).first()
+    if pass_record is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pass not found")
+    pass_record.status = "revoked"
+    db.commit()
+    db.refresh(pass_record)
+    return pass_record
 
 
 @router.get("/{pass_id}", response_model=PassRead)

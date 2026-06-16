@@ -3,14 +3,19 @@ from sqlalchemy.orm import Session
 
 from auth import get_current_user
 from database import get_db
-from models import EntryLog, Pass
+from models import AuditLog, Blacklist, EntryLog, Pass
 from schemas import EntryLogCreate, EntryLogRead
-
+from datetime import datetime, timezone
 
 router = APIRouter(prefix="/gate", tags=["gate"])
 
 
 def _resolve_pass(db: Session, payload: EntryLogCreate) -> Pass:
+    access_pass = _resolve_pass(db, payload)
+    if access_pass.status == "revoked":
+        raise HTTPException(status_code=400, detail="Pass has been revoked")
+    if access_pass.expires_at and access_pass.expires_at < datetime.now(timezone.utc).replace(tzinfo=None):
+        raise HTTPException(status_code=400, detail="Pass has expired")
     if payload.pass_id is not None:
         access_pass = db.query(Pass).filter(Pass.id == payload.pass_id).first()
         if access_pass:
@@ -22,11 +27,27 @@ def _resolve_pass(db: Session, payload: EntryLogCreate) -> Pass:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pass not found")
 
 
-@router.post("/entry", response_model=EntryLogRead, status_code=status.HTTP_201_CREATED)
 def log_entry(payload: EntryLogCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     access_pass = _resolve_pass(db, payload)
+
+    # 1. blacklist check first 
+    blacklisted = db.query(Blacklist).filter(
+        Blacklist.visitor_id == access_pass.visitor_id,
+        Blacklist.is_active == True
+    ).first()
+    if blacklisted:
+        raise HTTPException(status_code=403, detail="Visitor is blacklisted")
+
+    # 2. only if not blacklisted 
     entry = EntryLog(pass_id=access_pass.id, gate_operator_id=current_user.id, action="entry", notes=payload.notes)
     db.add(entry)
+    db.add(AuditLog(
+        user_id=current_user.id,
+        action="entry_logged",
+        entity_type="pass",
+        entity_id=str(access_pass.id),
+        details=f"Gate {payload.notes or ''}",
+    ))
     db.commit()
     db.refresh(entry)
     return entry
@@ -36,6 +57,13 @@ def log_entry(payload: EntryLogCreate, db: Session = Depends(get_db), current_us
 def log_exit(payload: EntryLogCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     access_pass = _resolve_pass(db, payload)
     entry = EntryLog(pass_id=access_pass.id, gate_operator_id=current_user.id, action="exit", notes=payload.notes)
+    db.add(AuditLog(
+        user_id=current_user.id,
+        action="exit_logged",
+        entity_type="pass",
+        entity_id=str(access_pass.id),
+        details=f"Gate {payload.notes or ''}",
+    ))
     db.add(entry)
     db.commit()
     db.refresh(entry)

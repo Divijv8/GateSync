@@ -46,3 +46,13 @@ def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)
     db.commit()
     db.refresh(user)
     return user
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(user_id: int, db: Session = Depends(get_db), current_user=Depends(require_role("admin"))):
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    if user.id == current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot delete your own account")
+    db.delete(user)
+    db.commit()
