@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from auth import get_current_user
-from backend.auth import require_role
+from auth import require_role
 from database import get_db
 from models import AuditLog, Pass, Visitor
 from schemas import PassIssueResponse, PassRead
@@ -33,7 +33,6 @@ def _build_qr_code(pass_record: Pass) -> str:
 @router.post("/{visitor_id}", response_model=PassIssueResponse, status_code=status.HTTP_201_CREATED)
 def issue_pass(
     visitor_id: int,
-    request: Request,
     expires_at: datetime | None = None,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
