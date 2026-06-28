@@ -1,21 +1,117 @@
 export default function PassCard({ passData }) {
+  const visitor = passData?.visitor ?? {}
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '—'
+    return new Date(dateStr).toLocaleDateString('en-IN', {
+      day: '2-digit', month: 'short', year: 'numeric'
+    })
+  }
+
+  const isExpired = passData?.expires_at && new Date(passData.expires_at) < new Date()
+  const isPermanent = !passData?.expires_at
+
   return (
-    <div className="pass-card">
+    <div className="pass-card" id="printable-pass">
+
+      {/* Header */}
       <div className="pass-card-header">
-        <span className="badge">Active Pass</span>
-        <strong>{passData?.pass_code ?? 'PASS-0000'}</strong>
-      </div>
-      <div className="pass-card-body">
         <div>
-          <p><strong>Visitor:</strong> {passData?.visitor?.first_name ?? 'Visitor'} {passData?.visitor?.last_name ?? ''}</p>
-          <p><strong>Company:</strong> {passData?.visitor?.company ?? '—'}</p>
-          <p><strong>Purpose:</strong> {passData?.visitor?.purpose ?? '—'}</p>
-          <p><strong>Expires:</strong> {passData?.expires_at ?? '—'}</p>
+          <div className="pass-org">DRDO — Defence Research & Development Organisation</div>
+          <div className="pass-title">Visitor Access Pass</div>
         </div>
-        <div className="qr-placeholder">
-          {passData?.qr_code_url ? <img src={`http://localhost:8000${passData.qr_code_url}`} alt="Pass QR code" /> : <span>QR</span>}
+        <div style={{ textAlign: 'right' }}>
+          <div className="pass-code">{passData?.pass_code ?? '—'}</div>
+          <span className={`badge ${isExpired ? 'badge-red' : 'badge-green'}`}>
+            {isExpired ? 'Expired' : isPermanent ? 'Permanent' : 'Active'}
+          </span>
         </div>
       </div>
+
+      {/* Body */}
+      <div className="pass-card-body">
+
+        <div className="pass-section">
+          <div className="pass-section-title">Personal Details</div>
+          <div className="pass-grid">
+            <div className="pass-field">
+              <span className="pass-field-label">Full Name</span>
+              <span className="pass-field-value">{visitor.first_name} {visitor.last_name}</span>
+            </div>
+            <div className="pass-field">
+              <span className="pass-field-label">Date of Birth</span>
+              <span className="pass-field-value">{formatDate(visitor.date_of_birth)}</span>
+            </div>
+            <div className="pass-field">
+              <span className="pass-field-label">Blood Group</span>
+              <span className="pass-field-value">{visitor.blood_group ?? '—'}</span>
+            </div>
+            <div className="pass-field">
+              <span className="pass-field-label">Para Group</span>
+              <span className="pass-field-value">{visitor.para_group ?? '—'}</span>
+            </div>
+            <div className="pass-field">
+              <span className="pass-field-label">Aadhaar Number</span>
+              <span className="pass-field-value">
+                {visitor.aadhaar_number
+                  ? 'XXXX-XXXX-' + visitor.aadhaar_number.slice(-4)
+                  : '—'}
+              </span>
+            </div>
+            <div className="pass-field">
+              <span className="pass-field-label">Mobile</span>
+              <span className="pass-field-value">{visitor.phone ?? '—'}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="pass-section">
+          <div className="pass-section-title">Visit Details</div>
+          <div className="pass-grid">
+            <div className="pass-field">
+              <span className="pass-field-label">Organization</span>
+              <span className="pass-field-value">{visitor.company ?? '—'}</span>
+            </div>
+            <div className="pass-field">
+              <span className="pass-field-label">Purpose</span>
+              <span className="pass-field-value">{visitor.purpose ?? '—'}</span>
+            </div>
+            <div className="pass-field">
+              <span className="pass-field-label">Host</span>
+              <span className="pass-field-value">{visitor.host_name ?? '—'}</span>
+            </div>
+            <div className="pass-field">
+              <span className="pass-field-label">Authority</span>
+              <span className="pass-field-value">{visitor.authority ?? '—'}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="pass-section">
+          <div className="pass-section-title">Pass Validity</div>
+          <div className="pass-grid">
+            <div className="pass-field">
+              <span className="pass-field-label">Issued On</span>
+              <span className="pass-field-value">{formatDate(passData?.issued_at)}</span>
+            </div>
+            <div className="pass-field">
+              <span className="pass-field-label">Valid Until</span>
+              <span className="pass-field-value" style={{ color: isExpired ? 'red' : 'inherit' }}>
+                {isPermanent ? 'No Expiry — Permanent' : formatDate(passData?.expires_at)}
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Footer */}
+      <div className="pass-card-footer">
+        <span>Pass Code: <strong>{passData?.pass_code}</strong></span>
+        <span>Generated by GateSync</span>
+        <span>Status: <strong>{isExpired ? 'EXPIRED' : isPermanent ? 'PERMANENT' : 'ACTIVE'}</strong></span>
+      </div>
+
     </div>
   )
 }

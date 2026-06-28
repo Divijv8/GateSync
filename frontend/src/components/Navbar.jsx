@@ -5,9 +5,9 @@ export default function Navbar() {
   const { currentUser, logout } = useAuth()
   const location = useLocation()
 
-  if (location.pathname === '/login') {
-    return null
-  }
+  if (location.pathname === '/login') return null
+
+  const role = currentUser?.role
 
   return (
     <header className="navbar">
@@ -16,14 +16,18 @@ export default function Navbar() {
         <p className="brand-subtitle">Visitor & Access Pass Management</p>
       </div>
       <nav className="nav-links">
-        <Link to="/admin">Admin</Link>
-        <Link to="/employee">Employee</Link>
-        <Link to="/gate">Gate</Link>
-        <Link to="/register">Register</Link>
-        <Link to="/reports">Reports</Link>
+        {role === 'admin' && <Link to="/admin">Dashboard</Link>}
+        {(role === 'admin' || role === 'employee') && <Link to="/employee">Employee</Link>}
+        {(role === 'admin' || role === 'employee') && <Link to="/register">Register Visitor</Link>}
+        {(role === 'admin' || role === 'employee') && <Link to="/history">Visitor History</Link>}
+        {(role === 'admin' || role === 'gate_operator') && <Link to="/gate">Gate</Link>}
+        {role === 'admin' && <Link to="/blacklist">Blacklist</Link>}
+        {role === 'admin' && <Link to="/reports">Reports</Link>}
+        {role === 'admin' && <Link to="/users">Users</Link>}
       </nav>
       <div className="nav-user">
         <span>{currentUser?.username ?? 'Guest'}</span>
+        <span style={{ fontSize: '11px', opacity: 0.6 }}>({role})</span>
         <button type="button" className="secondary-button" onClick={logout}>
           Logout
         </button>

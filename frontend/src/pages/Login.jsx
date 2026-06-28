@@ -26,8 +26,7 @@ export default function Login() {
         <span className="eyebrow">Visitor access workflow</span>
         <h1>One system for registration, passes, gates, and reporting.</h1>
         <p>
-          Manage visitor intake, issue QR-enabled passes, and record gate activity from a single
-          dashboard.
+          Manage visitor intake, issue coded access passes, and record gate activity from a single dashboard.
         </p>
       </section>
       <section className="card form-card">
