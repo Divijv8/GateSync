@@ -1,6 +1,5 @@
 from datetime import datetime
-
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -25,6 +24,13 @@ class User(Base):
     entry_logs = relationship("EntryLog", back_populates="gate_operator")
     audit_logs = relationship("AuditLog", back_populates="user")
 
+class PassType(Base):
+    __tablename__ = "pass_types"
+
+    id = Column(Integer, primary_key=True, index=True)
+    abbreviation = Column(String(10), unique=True, nullable=False)
+    label = Column(String(100), nullable=False)
+    is_active = Column(Boolean, default=True)
 
 class Visitor(Base):
     __tablename__ = "visitors"
@@ -34,6 +40,11 @@ class Visitor(Base):
     last_name = Column(String(100), nullable=False)
     email = Column(String(150), nullable=True)
     phone = Column(String(50), nullable=True)
+    aadhaar_number = Column(String(12), nullable=True)
+    date_of_birth  = Column(Date, nullable=True)
+    blood_group    = Column(String(5), nullable=True)
+    para_group     = Column(String(100), nullable=True)
+    authority      = Column(String(150), nullable=True)
     company = Column(String(150), nullable=True)
     purpose = Column(String(255), nullable=False)
     host_name = Column(String(150), nullable=True)
@@ -51,7 +62,6 @@ class Pass(Base):
     visitor_id = Column(Integer, ForeignKey("visitors.id"), nullable=False, index=True)
     pass_code = Column(String(120), unique=True, nullable=False, index=True)
     status = Column(String(50), default="active", nullable=False)
-    qr_code_path = Column(String(255), nullable=True)
     issued_at = Column(DateTime, default=utcnow, nullable=False)
     expires_at = Column(DateTime, nullable=True)
 

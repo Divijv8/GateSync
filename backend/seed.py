@@ -3,12 +3,27 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
 from auth import hash_password
-from models import AuditLog, Blacklist, EntryLog, Pass, User, Visitor
+from models import AuditLog, Blacklist, EntryLog, Pass, PassType, User, Visitor
 
 
 def seed_database(db: Session) -> None:
     if db.query(User).count() > 0:
         return
+
+    pass_types = [
+        PassType(abbreviation="TV", label="Temporary Visitor"),
+        PassType(abbreviation="PE", label="Permanent Employee"),
+        PassType(abbreviation="CT", label="Contractor"),
+        PassType(abbreviation="DL", label="Daily Labourer"),
+        PassType(abbreviation="OG", label="Official Guest"),
+        PassType(abbreviation="VD", label="Vendor/Supplier"),
+        PassType(abbreviation="MT", label="Maintenance Staff"),
+        PassType(abbreviation="IN", label="Intern"),
+        PassType(abbreviation="SR", label="Senior Research Staff"),
+        PassType(abbreviation="SC", label="Security Personnel"),
+    ]
+    db.add_all(pass_types)
+    db.flush()
 
     admin = User(
         username="admin",
@@ -47,18 +62,23 @@ def seed_database(db: Session) -> None:
 
     access_pass = Pass(
         visitor_id=visitor.id,
-        pass_code=f"PASS-{visitor.id:04d}",
+        pass_code=f"TV-0001",
         status="active",
         issued_at=datetime.utcnow(),
         expires_at=datetime.utcnow() + timedelta(hours=8),
     )
+    
     blacklist_entry = Blacklist(
         visitor_id=None,
         full_name="Blocked Visitor",
         reason="Sample blacklist entry for testing",
         is_active=True,
     )
-    entry_log = EntryLog(pass_id=1, gate_operator_id=None, action="entry", notes="Seeded log")
+
+    db.add_all([access_pass, blacklist_entry])
+    db.flush()
+
+    entry_log = EntryLog(pass_id=access_pass.id, gate_operator_id=None, action="entry", notes="Seeded log")
     audit_log = AuditLog(
         user_id=None,
         action="seed_complete",
@@ -67,5 +87,5 @@ def seed_database(db: Session) -> None:
         details="Demo users and sample data created",
     )
 
-    db.add_all([access_pass, blacklist_entry, entry_log, audit_log])
+    db.add_all([entry_log, audit_log])
     db.commit()

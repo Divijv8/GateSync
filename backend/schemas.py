@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -43,11 +43,31 @@ class UserRead(UserBase):
     created_at: datetime
 
 
+class PassTypeBase(ORMBaseModel):
+    abbreviation: str
+    label: str
+    is_active: bool = True
+
+class PassTypeCreate(PassTypeBase):
+    pass
+
+class PassTypeRead(PassTypeBase):
+    id: int
+
+class PassTypeUpdate(BaseModel):
+    label: Optional[str] = None
+    is_active: Optional[bool] = None
+
 class VisitorBase(ORMBaseModel):
     first_name: str
     last_name: str
     email: Optional[str] = None
     phone: Optional[str] = None
+    aadhaar_number: Optional[str] = None
+    date_of_birth:  Optional[date] = None
+    blood_group:    Optional[str] = None
+    para_group:     Optional[str] = None
+    authority:      Optional[str] = None
     company: Optional[str] = None
     purpose: str
     host_name: Optional[str] = None
@@ -67,6 +87,11 @@ class VisitorUpdate(BaseModel):
     purpose: Optional[str] = None
     host_name: Optional[str] = None
     is_active: Optional[bool] = None
+    aadhaar_number: Optional[str] = None
+    date_of_birth:  Optional[date] = None
+    blood_group:    Optional[str] = None
+    para_group:     Optional[str] = None
+    authority:      Optional[str] = None
 
 
 class VisitorRead(VisitorBase):
@@ -78,10 +103,9 @@ class PassBase(ORMBaseModel):
     visitor_id: int
     pass_code: str
     status: str = "active"
-    qr_code_path: Optional[str] = None
-
 
 class PassCreate(BaseModel):
+    pass_type_abbr: str
     expires_at: Optional[datetime] = None
 
 
@@ -95,8 +119,6 @@ class PassRead(PassBase):
 class PassIssueResponse(BaseModel):
     message: str
     access_pass: PassRead
-    qr_code_url: Optional[str] = None
-
 
 class EntryLogBase(ORMBaseModel):
     pass_id: int
