@@ -244,3 +244,179 @@ input {
     flex-wrap: wrap;
   }
 }
+
+/* ── Stat cards on Admin Dashboard ── */
+.grid.four-up {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.stat-card {
+  text-align: center;
+  padding: 1.5rem 1rem;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #102033;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #6b7f96;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Badge variants ── */
+.badge-green {
+  background: rgba(18, 163, 130, 0.12);
+  color: #0f7a63;
+}
+
+.badge-red {
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+}
+
+/* ── Error text ── */
+.error-text {
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+/* ── Pass card details ── */
+.pass-org {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7f96;
+  margin-bottom: 4px;
+}
+
+.pass-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.pass-code {
+  font-size: 1.4rem;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 0.05em;
+}
+
+.pass-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(16, 32, 51, 0.08);
+}
+
+.pass-section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7f96;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.pass-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pass-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pass-field-label {
+  font-size: 11px;
+  color: #6b7f96;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pass-field-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: #102033;
+}
+
+.pass-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(16, 32, 51, 0.08);
+  font-size: 12px;
+  color: #6b7f96;
+}
+
+/* ── Print styles ── */
+@media print {
+  .navbar,
+  button,
+  .page-shell > *:not(.pass-card) {
+    display: none !important;
+  }
+
+  .pass-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+}
+
+/* ── Table text muted ── */
+:root {
+  --text-muted: #6b7f96;
+  --border: rgba(16, 32, 51, 0.1);
+  --surface-alt: rgba(16, 32, 51, 0.03);
+}
+
+/* ── four-up responsive ── */
+@media (max-width: 900px) {
+  .grid.four-up {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 500px) {
+  .grid.four-up {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Labels inside grids ── */
+.grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #102033;
+}
+
+.grid label input,
+.grid label select {
+  margin-top: 2px;
+}
+
+select {
+  width: 100%;
+  border: 1px solid #c8d4e5;
+  border-radius: 12px;
+  padding: 0.85rem 0.95rem;
+  background: white;
+  font: inherit;
+  cursor: pointer;
+  appearance: auto;
+}

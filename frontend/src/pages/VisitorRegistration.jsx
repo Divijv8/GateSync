@@ -143,8 +143,8 @@ export default function VisitorRegistration() {
           </label>
         </div>
 
-        <h3>Visit Information</h3>
-        <div className="grid two-up">
+        <h3 style={{ marginTop: '24px' }}>Visit Information</h3>
+          <div className="grid two-up">
           <label>Company / Organization
             <input name="company" value={form.company} onChange={handleChange} placeholder="DRDO" />
           </label>
@@ -159,7 +159,7 @@ export default function VisitorRegistration() {
           </label>
         </div>
 
-        <h3>Pass Details</h3>
+        <h3 style={{ marginTop: '24px' }}>Pass Details</h3>
         <div className="grid two-up">
           <label>Pass Type *
             <select value={passTypeAbbr} onChange={e => { setPassTypeAbbr(e.target.value); setDurationDays('') }}>
