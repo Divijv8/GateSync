@@ -95,6 +95,7 @@ input {
 .secondary-button,
 .toggle-row button.active {
   background: #213654;
+  color: white;
 }
 
 .page-shell,
