@@ -44,9 +44,11 @@ export default function GateOperator() {
   async function logAction(action) {
     setError('')
     setSuccessMsg('')
+    const code = passCode.trim().toUpperCase()
+    const visitorName = `${passData?.visitor?.first_name} ${passData?.visitor?.last_name}`
     try {
-      await api.post(`/gate/${action}`, { pass_code: passCode.trim().toUpperCase() })
-      setSuccessMsg(`${action === 'entry' ? 'Entry' : 'Exit'} logged successfully for ${passData?.visitor?.first_name} ${passData?.visitor?.last_name}.`)
+      await api.post(`/gate/${action}`, { pass_code: code })
+      setSuccessMsg(`${action === 'entry' ? 'Entry' : 'Exit'} logged successfully for ${visitorName}.`)
       setPassCode('')
       setPassData(null)
       fetchRecentLogs()
@@ -194,26 +196,33 @@ export default function GateOperator() {
           <p style={{ color: 'var(--text-muted)' }}>No recent activity.</p>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-            <thead>
+            <thead style={{ background: 'var(--surface-alt)' }}>
               <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                <th style={{ textAlign: 'left', padding: '8px' }}>Pass ID</th>
-                <th style={{ textAlign: 'left', padding: '8px' }}>Action</th>
-                <th style={{ textAlign: 'left', padding: '8px' }}>Notes</th>
-                <th style={{ textAlign: 'left', padding: '8px' }}>Time</th>
+                {['Pass Code', 'Visitor Name', 'Action', 'Date & Time'].map(h => (
+                  <th key={h} style={{ textAlign: 'left', padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {recentLogs.map(log => (
                 <tr key={log.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td style={{ padding: '8px' }}>#{log.pass_id}</td>
-                  <td style={{ padding: '8px' }}>
+                  <td style={{ padding: '10px 12px', fontFamily: 'monospace', fontWeight: 600 }}>
+                    {log.pass_code ?? `#${log.pass_id}`}
+                  </td>
+                  <td style={{ padding: '10px 12px' }}>
+                    {log.visitor_name ?? '—'}
+                  </td>
+                  <td style={{ padding: '10px 12px' }}>
                     <span className={`badge ${log.action === 'entry' ? 'badge-green' : 'badge-red'}`}>
                       {log.action.toUpperCase()}
                     </span>
                   </td>
-                  <td style={{ padding: '8px' }}>{log.notes ?? '—'}</td>
-                  <td style={{ padding: '8px' }}>
-                    {new Date(log.timestamp).toLocaleTimeString('en-IN')}
+                  <td style={{ padding: '10px 12px' }}>
+                    {new Date(log.timestamp).toLocaleDateString('en-IN', {
+                      day: '2-digit', month: 'short', year: 'numeric'
+                    })} {new Date(log.timestamp).toLocaleTimeString('en-IN')}
                   </td>
                 </tr>
               ))}

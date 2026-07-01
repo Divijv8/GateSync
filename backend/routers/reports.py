@@ -104,13 +104,13 @@ def audit_report(db: Session = Depends(get_db), current_user=Depends(require_rol
             log.timestamp.strftime("%d %b %Y %H:%M"),
             log.action,
             f"{log.entity_type} #{log.entity_id or '—'}",
-            (log.details or "")[:40],
+            (log.details or "")[:35],
         ])
 
     if len(rows) == 1:
         story.append(Paragraph("No audit logs yet.", styles["BodyText"]))
     else:
-        table = Table(rows, colWidths=[110, 100, 100, 140])
+        table = Table(rows, colWidths=[90, 120, 110, 220])
         table.setStyle(TableStyle(HEADER_STYLE))
         story.append(table)
 

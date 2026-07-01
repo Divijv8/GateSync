@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from auth import get_current_user
 from database import get_db
@@ -7,12 +7,20 @@ from models import AuditLog, Blacklist, Visitor
 from schemas import VisitorCreate, VisitorRead, VisitorUpdate
 
 
+
 router = APIRouter(prefix="/visitors", tags=["visitors"])
 
 
-@router.get("", response_model=list[VisitorRead])
+@router.get("")
 def list_visitors(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
-    return db.query(Visitor).order_by(Visitor.created_at.desc()).all()
+    visitors = db.query(Visitor).options(joinedload(Visitor.passes)).order_by(Visitor.created_at.desc()).all()
+    result = []
+    for v in visitors:
+        data = VisitorRead.model_validate(v).model_dump()
+        data['pass_count'] = len(v.passes)
+        data['first_pass_id'] = v.passes[0].id if v.passes else None
+        result.append(data)
+    return result
 
 
 @router.post("", response_model=VisitorRead, status_code=status.HTTP_201_CREATED)

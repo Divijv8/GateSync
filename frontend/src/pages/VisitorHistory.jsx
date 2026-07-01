@@ -70,7 +70,13 @@ export default function VisitorHistory() {
                 <tr
                   key={v.id}
                   style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }}
-                  onClick={() => navigate(`/visitors/${v.id}`)}
+                  onClick={() => {
+                    if (v.first_pass_id) {
+                      navigate(`/passes/${v.first_pass_id}`)
+                    } else {
+                      alert('No pass issued for this visitor yet.')
+                    }
+                  }}
                 >
                   <td style={{ padding: '10px 12px', fontWeight: 500 }}>
                     {v.first_name} {v.last_name}
@@ -83,7 +89,7 @@ export default function VisitorHistory() {
                   <td style={{ padding: '10px 12px' }}>{formatDate(v.created_at)}</td>
                   <td style={{ padding: '10px 12px' }}>
                     <span className="badge badge-green">
-                      {v.passes?.length ?? 0}
+                      {v.pass_count ?? 0}
                     </span>
                   </td>
                 </tr>

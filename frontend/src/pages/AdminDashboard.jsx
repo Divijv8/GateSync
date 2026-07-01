@@ -8,15 +8,18 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [visitors, passes, blacklist, users] = await Promise.all([
+        const [visitors, blacklist, users, passes] = await Promise.all([
           api.get('/visitors'),
-          api.get('/passes/code/dummy').catch(() => null),
           api.get('/blacklist'),
           api.get('/users'),
+          api.get('/passes'),
         ])
         setStats({
           visitors: visitors.data.length,
-          passes: passes?.data.length || 0,
+          passes: passes.data.filter(p =>
+            p.status === 'active' &&
+            (!p.expires_at || new Date(p.expires_at) > new Date())
+          ).length,
           blacklist: blacklist.data.length,
           users: users.data.length,
         })

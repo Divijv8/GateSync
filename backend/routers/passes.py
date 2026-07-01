@@ -9,6 +9,25 @@ from schemas import PassIssueResponse, PassRead
 
 router = APIRouter(prefix="/passes", tags=["passes"])
 
+@router.get("", response_model=list[PassRead])
+def list_passes(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    return db.query(Pass).order_by(Pass.issued_at.desc()).all()
+
+@router.get("/code/{pass_code}", response_model=PassRead)
+def lookup_pass_by_code(pass_code: str, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    pass_record = db.query(Pass).filter(Pass.pass_code == pass_code).first()
+    if pass_record is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pass not found")
+    return pass_record
+
+@router.get("/{pass_id}", response_model=PassRead)
+def get_pass(pass_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    pass_record = db.query(Pass).filter(Pass.id == pass_id).first()
+    if pass_record is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pass not found")
+    return pass_record
+
+
 
 @router.post("/{visitor_id}", response_model=PassIssueResponse, status_code=status.HTTP_201_CREATED)
 def issue_pass(
@@ -57,23 +76,6 @@ def issue_pass(
         message="Pass issued successfully",
         access_pass=PassRead.model_validate(pass_record),
     )
-
-
-@router.get("/{pass_id}", response_model=PassRead)
-def get_pass(pass_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
-    pass_record = db.query(Pass).filter(Pass.id == pass_id).first()
-    if pass_record is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pass not found")
-    return pass_record
-
-
-@router.get("/code/{pass_code}", response_model=PassRead)
-def lookup_pass_by_code(pass_code: str, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
-    pass_record = db.query(Pass).filter(Pass.pass_code == pass_code).first()
-    if pass_record is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pass not found")
-    return pass_record
-
 
 @router.patch("/{pass_id}/revoke", response_model=PassRead)
 def revoke_pass(pass_id: int, db: Session = Depends(get_db), current_user=Depends(require_role("admin"))):

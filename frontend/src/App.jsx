@@ -12,6 +12,7 @@ import Blacklist from './pages/Blacklist.jsx'
 import Reports from './pages/Reports.jsx'
 import VisitorHistory from './pages/VisitorHistory.jsx'
 import { useAuth } from './context/AuthContext.jsx'
+import VisitorDetail from './pages/VisitorDetail.jsx'
 
 // Add this component above App()
 function HomeRedirect() {
@@ -39,7 +40,9 @@ export default function App() {
           <Route path="/employee" element={<EmployeeDashboard />} />
           <Route path="/register" element={<VisitorRegistration />} />
           <Route path="/history" element={<VisitorHistory />} />
+          <Route path="/visitors/:visitorId" element={<PassDetails />} />
           <Route path="/passes/:passId" element={<PassDetails />} />
+          <Route path="/visitors/:visitorId" element={<VisitorDetail />} />
         </Route>
         <Route element={<ProtectedRoute allowedRoles={["admin", "gate_operator"]} />}>
           <Route path="/gate" element={<GateOperator />} />
