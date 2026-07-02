@@ -58,7 +58,7 @@ export default function VisitorHistory() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead style={{ background: 'var(--surface-alt)' }}>
               <tr>
-                {['Name', 'Phone', 'Company', 'Purpose', 'Host', 'Blood Grp', 'Registered', 'Passes'].map(h => (
+                {['Name', 'Phone', 'Company', 'Purpose', 'Host', 'Blood Grp', 'Registered', 'Pass Status'].map(h => (
                   <th key={h} style={{ textAlign: 'left', padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>
                     {h}
                   </th>
@@ -88,9 +88,19 @@ export default function VisitorHistory() {
                   <td style={{ padding: '10px 12px' }}>{v.blood_group ?? '—'}</td>
                   <td style={{ padding: '10px 12px' }}>{formatDate(v.created_at)}</td>
                   <td style={{ padding: '10px 12px' }}>
-                    <span className="badge badge-green">
-                      {v.pass_count ?? 0}
-                    </span>
+                    {v.first_pass_id ? (
+                      <span className={`badge ${
+                        v.pass_status === 'revoked' ? 'badge-red' :
+                        v.pass_expires_at && new Date(v.pass_expires_at) < new Date() ? 'badge-red' :
+                        'badge-green'
+                      }`}>
+                        {v.pass_status === 'revoked' ? 'Revoked' :
+                        v.pass_expires_at && new Date(v.pass_expires_at) < new Date() ? 'Expired' :
+                        'Active'}
+                      </span>
+                    ) : (
+                      <span className="badge" style={{ background: 'rgba(0,0,0,0.06)', color: '#6b7f96' }}>No Pass</span>
+                    )}
                   </td>
                 </tr>
               ))}

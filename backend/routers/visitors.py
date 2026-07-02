@@ -19,6 +19,8 @@ def list_visitors(db: Session = Depends(get_db), current_user=Depends(get_curren
         data = VisitorRead.model_validate(v).model_dump()
         data['pass_count'] = len(v.passes)
         data['first_pass_id'] = v.passes[0].id if v.passes else None
+        data['pass_status'] = v.passes[0].status if v.passes else None
+        data['pass_expires_at'] = v.passes[0].expires_at.isoformat() if v.passes and v.passes[0].expires_at else None
         result.append(data)
     return result
 
